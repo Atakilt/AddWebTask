@@ -1,0 +1,156 @@
+﻿
+
+@{
+    ViewData["Title"] = "Create User";
+}
+
+<fieldset>
+    <legend>User Profile</legend>
+    <table style="width:40%">
+        <tr>
+            <td>First Name: </td>
+            <td><input class="form-control" value="" id="txtFirstName" name="FirstName" placeholder="First Name" /></td>
+        </tr>
+        <tr>
+            <td>Last Name: </td>
+            <td><input class="form-control" value="" id="txtLastName" name="LastName" placeholder="Last Name" /></td>
+        </tr>
+        <tr>
+            <td>Email: </td>
+            <td><input class="form-control" value="" id="txtEmail" name="Email" placeholder="Email" /></td>
+        </tr>
+        <tr>
+            <td>Address: </td>
+            <td><input class="form-control" value="" id="txtAddress" name="Address" placeholder="Address" /></td>
+        </tr>
+        <tr>
+            <td>Date of Birth: </td>
+            <td><input class="form-control" value="" id="txtDateOfBirth" name="Address" placeholder="Date of Birth" /></td>
+        </tr>
+    </table>
+</fieldset>
+<br />
+<br />
+<fieldset>
+    <legend>Experience</legend>
+    <table style="width:100%" id="tblExperienceDetails">
+        <thead>
+            <tr style="text-align:center">
+                <th>Company Name</th>
+                <th>Position</th>
+                <th>From Date</th>
+                <th>To Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <input type="text" value="" name="CompanyName" class="form-control" />
+                </td>
+                <td>
+                    <input type="text" value="" name="Position" class="form-control" />
+                </td>
+                <td>
+                    <input type="text" value="" name="FromDate" class="form-control" />
+                </td>
+                <td>
+                    <input type="text" value="" name="ToDate" class="form-control" />
+                </td>
+                <td>
+                    <input type="button" value="Add" name="Add" id="btnAdd" onclick="AddExperienceRow()" class="btn btn-secondary" />
+                    <input type="button" value="Delete" name="Delete" id="btnDelete" onclick="DeleteExperienceRow(this)" class="btn btn-danger" />
+                </td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td></td>
+                <td></td>
+                <td><input type="button" id="save" value="Save User" name="SaveUser" class="btn btn-primary" onclick="SaveUserProfile()" /></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+</fieldset>
+
+@section Scripts{
+    <script type="text/javascript">
+        $(document).ready(
+            function () {
+                $("#btnDelete").hide();
+            }
+        );
+
+        function AddExperienceRow() {
+            $("#btnDelete").show();
+            var tblBody = $("#tblExperienceDetails").find("tbody");
+            var tblLastRow = tblBody.find("tr:last");
+            var tblClone = tblLastRow.clone().find("input[type=text]").val('').end();
+            tblLastRow.after(tblClone);
+            $("#btnDelete").hide();
+        }
+
+        function DeleteExperienceRow(btnDelete) {
+            $(btnDelete).closest("tr").remove();
+        }
+
+        function SaveUserProfile() {
+            lstOfExperienceViewModel = [];
+            var tblBody = $("#tblExperienceDetails").find("tbody");
+            tblBody.find("tr").each(function () {
+                var CompanyName = $(this).find("td:eq(0) input[type='text']").val();
+                var Position = $(this).find("td:eq(1) input[type='text']").val();
+                var FromDate = $(this).find("td:eq(2) input[type='text']").val();
+                var ToDate = $(this).find("td:eq(3) input[type='text']").val();
+
+                lstOfExperienceViewModel.push({
+                    "CompanyName": CompanyName,
+                    "Position": Position,
+                    "FromDate": FromDate,
+                    "ToDate": ToDate
+                });
+
+            });
+
+            console.log(lstOfExperienceViewModel);
+
+            $.ajax({
+                type: "POST", 
+                url: "/Home/Create",
+                cache: false,
+                data: {
+                    FirstName: $("#txtFirstName").val(),
+                    LastName: $("#txtLastName").val(),
+                    Email: $("#txtEmail").val(),
+                    Address: $("#txtAddress").val(),
+                    DateOfBirth: $("#txtDateOfBirth").val(),
+                    ListOfExperienceViewModel: lstOfExperienceViewModel
+                },                
+                success: function (data) {
+                    alert('Saved Successfully');
+                    Reset();
+                },
+                error: function (data) { alert('Something went wrong.') }
+            });
+        }
+
+        function Reset() {
+            $("#txtFirstName").val('');
+            $("#txtLastName").val('');
+            $("#txtEmail").val('');
+            $("#txtEmail").val('');
+            $("#txtAddress").val('');
+
+            var tblBody = $("#tblExperienceDetails").find("tbody");
+            tblBody.find('tr:gt(0)').remove();
+
+            tblBody.find("tr").each(function () {
+                $(this).find("input[type=text]").val('');
+            });
+        }
+
+    </script>
+}
+
